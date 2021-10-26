@@ -20,7 +20,8 @@ void ChatServer::quit() {
 
 void ChatServer::disconnected() {
 	QWebSocket* socket = qobject_cast<QWebSocket*>(this->sender());
-	connections.removeOne(socket);
+	connections.removeAll(socket);
+	usernames.remove(socket);
 	qInfo() << "Disconnected"<<socket->localAddress();
 	socket->deleteLater();
 }
@@ -35,7 +36,16 @@ void ChatServer::newConnection() {
 
 void ChatServer::receiveTextMessage(QString message) {
 	qInfo() << "Received:"<<message;
-	for(auto client : connections) {
-		client->sendTextMessage(message);
+	if(message.startsWith("JOIN ")) {
+		usernames[qobject_cast<QWebSocket*>(this->sender())] = message.mid(5);
+		for(auto client : connections) {
+			client->sendTextMessage("SERVER " + message.mid(5) + " joined!");
+		}
+	}
+	else {
+		QString username = usernames[qobject_cast<QWebSocket*>(this->sender())];
+		for(auto client : connections) {
+			client->sendTextMessage(username + ':' + message);
+		}
 	}
 }

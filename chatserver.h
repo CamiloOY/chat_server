@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QWebSocketServer>
+#include <QHash>
 
 class ChatServer : public QObject {
 	Q_OBJECT
@@ -12,6 +13,7 @@ public:
 private:
 	QWebSocketServer server;
 	QList<QWebSocket*> connections;
+	QHash<QWebSocket*, QString> usernames;
 
 public slots:
 	void start();
