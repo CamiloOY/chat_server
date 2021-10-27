@@ -20,10 +20,14 @@ void ChatServer::quit() {
 
 void ChatServer::disconnected() {
 	QWebSocket* socket = qobject_cast<QWebSocket*>(this->sender());
+	QString leaver_name = usernames[socket];
 	connections.removeAll(socket);
 	usernames.remove(socket);
 	qInfo() << "Disconnected"<<socket->localAddress();
 	socket->deleteLater();
+	for(auto client : connections) {
+		client->sendTextMessage("SERVER " + leaver_name + " disconnected");
+	}
 }
 
 void ChatServer::newConnection() {
