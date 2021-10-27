@@ -54,6 +54,12 @@ void ChatServer::receiveTextMessage(QString message) {
 			client->sendTextMessage("SERVER " + old_name + " changed his name to " + usernames[socket]);
 		}
 	}
+	else if(message.startsWith("ME ")) {
+		QString username = usernames[qobject_cast<QWebSocket*>(this->sender())];
+		for(auto client : connections) {
+			client->sendTextMessage("SERVER " + username + message.mid(3));
+		}
+	}
 	else {
 		QString username = usernames[qobject_cast<QWebSocket*>(this->sender())];
 		for(auto client : connections) {
