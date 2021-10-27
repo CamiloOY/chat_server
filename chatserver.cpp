@@ -42,6 +42,14 @@ void ChatServer::receiveTextMessage(QString message) {
 			client->sendTextMessage("SERVER " + message.mid(5) + " joined!");
 		}
 	}
+	else if(message.startsWith("NICK ")) {
+		QWebSocket* socket = qobject_cast<QWebSocket*>(this->sender());
+		QString old_name = usernames[socket];
+		usernames[socket] = message.mid(5);
+		for(auto client : connections) {
+			client->sendTextMessage("SERVER " + old_name + " changed his name to " + usernames[socket]);
+		}
+	}
 	else {
 		QString username = usernames[qobject_cast<QWebSocket*>(this->sender())];
 		for(auto client : connections) {
