@@ -1,6 +1,7 @@
 #include "chatserver.h"
 #include <QDebug>
 #include <QWebSocket>
+#include <QRegularExpression>
 
 ChatServer::ChatServer(QObject *parent) : QObject(parent), server("Chat", QWebSocketServer::NonSecureMode) {
 	this->connect(&server, &QWebSocketServer::newConnection, this, &ChatServer::newConnection);
@@ -46,15 +47,15 @@ void ChatServer::receiveTextMessage(QString message) {
 			client->sendTextMessage("SERVER " + message.mid(5) + " joined!");
 		}
 	}
-	else if(message.startsWith("NICK ")) {
+	else if(QRegularExpression("^\\/nick [a-zA-Z\\s]+").match(message).hasMatch()) {
 		QWebSocket* socket = qobject_cast<QWebSocket*>(this->sender());
 		QString old_name = usernames[socket];
-		usernames[socket] = message.mid(5);
+		usernames[socket] = message.mid(6);
 		for(auto client : connections) {
 			client->sendTextMessage("SERVER " + old_name + " changed his name to " + usernames[socket]);
 		}
 	}
-	else if(message.startsWith("ME ")) {
+	else if(QRegularExpression("^\\/me [a-zA-Z\\s]+").match(message).hasMatch()) {
 		QString username = usernames[qobject_cast<QWebSocket*>(this->sender())];
 		for(auto client : connections) {
 			client->sendTextMessage("SERVER " + username + message.mid(3));
