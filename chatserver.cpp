@@ -55,6 +55,7 @@ void ChatServer::receiveTextMessage(QString message) {
 		usernames[socket] = message.mid(6);
 		for(auto client : connections) {
 			client->sendTextMessage("SERVER " + old_name + " changed his name to " + usernames[socket]);
+			client->sendTextMessage("NICK " + old_name + " " + usernames[socket]);
 		}
 	}
 	else if(QRegularExpression("^\\/me [a-zA-Z\\s]+").match(message).hasMatch()) {
