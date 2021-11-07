@@ -47,7 +47,7 @@ void ChatServer::receiveTextMessage(QString message) {
 			client->sendTextMessage("SERVER " + message.mid(5) + " joined!");
 		}
 	}
-	else if(QRegularExpression("^\\/nick [a-zA-Z\\s]+").match(message).hasMatch()) {
+	else if(QRegularExpression("^\\/nick [a-zA-Z]+$").match(message).hasMatch()) {
 		QWebSocket* socket = qobject_cast<QWebSocket*>(this->sender());
 		QString old_name = usernames[socket];
 		usernames[socket] = message.mid(6);
