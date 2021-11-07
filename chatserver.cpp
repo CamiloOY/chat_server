@@ -28,6 +28,7 @@ void ChatServer::disconnected() {
 	socket->deleteLater();
 	for(auto client : connections) {
 		client->sendTextMessage("SERVER " + leaver_name + " disconnected");
+		client->sendTextMessage("LEAVE " + leaver_name);
 	}
 }
 
@@ -45,6 +46,7 @@ void ChatServer::receiveTextMessage(QString message) {
 		usernames[qobject_cast<QWebSocket*>(this->sender())] = message.mid(5);
 		for(auto client : connections) {
 			client->sendTextMessage("SERVER " + message.mid(5) + " joined!");
+			client->sendTextMessage(message);
 		}
 	}
 	else if(QRegularExpression("^\\/nick [a-zA-Z]+$").match(message).hasMatch()) {
@@ -60,6 +62,14 @@ void ChatServer::receiveTextMessage(QString message) {
 		for(auto client : connections) {
 			client->sendTextMessage("SERVER " + username + message.mid(3));
 		}
+	}
+	else if(message == "USERS") {
+		QString response = "USERS";
+		for(auto client : connections) {
+			response += " " + usernames[client];
+		}
+		QWebSocket* socket = qobject_cast<QWebSocket*>(this->sender());
+		socket->sendTextMessage(response);
 	}
 	else {
 		QString username = usernames[qobject_cast<QWebSocket*>(this->sender())];
